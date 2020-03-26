@@ -2,10 +2,13 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const ExerciseSchema = new Schema ({
-    instance: {
-        type: String,
+const WorkoutSchema = new Schema ({
+    day:{
+        type:Date,
+        default: new Date().setDate(new Date().getDate())
     },
+    exercises: [
+        {
     type: {
         type:String,
         allownull: false
@@ -28,7 +31,11 @@ const ExerciseSchema = new Schema ({
     },
     distance: {
         type: Number
+    }}],
+
+    totalDuration:{
+        type:Number
     }
 });
-const Exercise = mongoose.model("Exercise",ExerciseSchema)
-module.exports = Exercise;
+const Workout = mongoose.model("Workout", WorkoutSchema)
+module.exports = Workout;

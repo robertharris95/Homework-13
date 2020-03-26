@@ -1,46 +1,49 @@
 const db = require('../models')
-
+var mongojs = require('mongojs')
+let aggregate;
 module.exports = app => {
+  aggregate=0;
 app.post('/api/workouts',({body}, res) => {
-    db.Exercise.create({})
-    .then(dbExercise => {
-        res.json(dbExercise);
+    db.Workout.create({})
+    .then(dbWorkout => {
+        res.json(dbWorkout);
       })
     .catch(({message}) => {
       console.log(message);
     });
 })
 
-app.put('api/workouts/:id',(req, res) =>{
-    let id = req.params.id;
+app.put('/api/workouts/:id',(req, res) => {
+    let id = mongojs.ObjectId(req.params.id);
     let data = req.body;
-    db.Exercise.findOneAndUpdate({_id: id}, {
-      type: data.type,
-      name: data.name,
-      weight: data.weight,
-      sets: data.sets,
-      reps: data.reps,
-      duration: data.duration
-    }).then(dbUpdate => {
+    aggregate += data.duration;
+    db.Workout.findOneAndUpdate(
+      {
+        _id: id
+      },
+      { 
+      $push: {exercises: data},
+      totalDuration: aggregate
+      },
+      {
+        new: true
+      }
+    ).then(dbUpdate => {
         res.send(dbUpdate)
     });
 });
 
-app.get("/api/workouts", (req,res) => {
-    db.Exercise.find({})
-    .then(dbExercise => {
-      res.json(dbExercise);
+app.get("/api/workouts/", (req,res) => {
+    db.Workout.find({})
+    .then(dbWorkout => {
+      res.json(dbWorkout);
     })
 });
 
-// app.get("/api/workouts/range", (req,res) => {
-//     db.Exercise.find({})
-//     .populate("workouts")
-//     .then(dbExercise => {
-//       res.json(dbExercise);
-//     })
-//     .catch(err => {
-//       res.json(err);
-//     });
-// });
+app.get("/api/workouts/range", (req,res) => {
+    db.Workout.find({})
+    .then(data => {
+      res.json(data)
+    })
+    });
 }
